@@ -18,9 +18,8 @@ app.use(
   graphqlHTTP({
     schema,
     rootValue,
-    graphiql: {
+    playground: {
       subscriptionEndpoint,
-      websocketClient: 'v1',
     },
   }),
 );

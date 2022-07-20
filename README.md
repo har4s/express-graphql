@@ -32,7 +32,7 @@ app.use(
   '/graphql',
   graphqlHTTP({
     schema: MyGraphQLSchema,
-    graphiql: true,
+    playground: true,
   }),
 );
 
@@ -41,7 +41,7 @@ app.listen(4000);
 
 ## Setup with Restify
 
-Use `.get` or `.post` (or both) rather than `.use` to configure your route handler. If you want to show GraphiQL in the browser, set `graphiql: true` on your `.get` handler.
+Use `.get` or `.post` (or both) rather than `.use` to configure your route handler. If you want to show Playground in the browser, set `playground: true` on your `.get` handler.
 
 ```js
 const restify = require('restify');
@@ -53,7 +53,7 @@ app.post(
   '/graphql',
   graphqlHTTP({
     schema: MyGraphQLSchema,
-    graphiql: false,
+    playground: false,
   }),
 );
 
@@ -61,7 +61,7 @@ app.get(
   '/graphql',
   graphqlHTTP({
     schema: MyGraphQLSchema,
-    graphiql: true,
+    playground: true,
   }),
 );
 
@@ -94,7 +94,6 @@ app.use(
   '/graphql',
   graphqlHTTP({
     schema: schema,
-    graphiql: { subscriptionEndpoint: `ws://localhost:${PORT}/subscriptions` },
   }),
 );
 
@@ -123,15 +122,15 @@ The `graphqlHTTP` function accepts the following options:
 - **`schema`**: A `GraphQLSchema` instance from [`GraphQL.js`][].
   A `schema` _must_ be provided.
 
-- **`graphiql`**: If `true`, presents [GraphiQL][] when the GraphQL endpoint is
-  loaded in a browser. We recommend that you set `graphiql` to `true` when your
+- **`playground`**: If `true`, presents [Playground][] when the GraphQL endpoint is
+  loaded in a browser. We recommend that you set `playground` to `true` when your
   app is in development, because it's quite useful. You may or may not want it
   in production.
   Alternatively, instead of `true` you can pass in an options object:
 
   - **`defaultQuery`**: An optional GraphQL string to use when no query
     is provided and no stored query exists from a previous session.
-    If `undefined` is provided, GraphiQL will use its own default query.
+    If `undefined` is provided, Playground will use its own default query.
 
   - **`headerEditorEnabled`**: An optional boolean which enables the header editor when `true`.
     Defaults to `false`.
@@ -188,7 +187,7 @@ app.use(
   graphqlHTTP(async (request, response, graphQLParams) => ({
     schema: MyGraphQLSchema,
     rootValue: await someFunctionToGetRootValue(request),
-    graphiql: true,
+    playground: true,
   })),
 );
 ```
@@ -208,8 +207,8 @@ the parameters:
   provided, a 400 error will be returned if the `query` contains multiple
   named operations.
 
-- **`raw`**: If the `graphiql` option is enabled and the `raw` parameter is
-  provided, raw JSON will always be returned instead of GraphiQL even when
+- **`raw`**: If the `playground` option is enabled and the `raw` parameter is
+  provided, raw JSON will always be returned instead of Playground even when
   loaded from a browser.
 
 GraphQL will first look for each parameter in the query string of a URL:
@@ -257,7 +256,7 @@ app.use(
   '/graphql',
   graphqlHTTP({
     schema: MySessionAwareGraphQLSchema,
-    graphiql: true,
+    playground: true,
   }),
 );
 ```
@@ -316,7 +315,7 @@ app.use(
     return {
       schema: MyGraphQLSchema,
       context: { startTime: Date.now() },
-      graphiql: true,
+      playground: true,
       extensions,
     };
   }),
@@ -425,7 +424,7 @@ Community feedback on this experimental release is much appreciated and can be p
 
 [`graphql.js`]: https://github.com/graphql/graphql-js
 [`formaterror`]: https://github.com/graphql/graphql-js/blob/main/src/error/formatError.js
-[graphiql]: https://github.com/graphql/graphiql
+[playground]: https://github.com/graphql/playground
 [`multer`]: https://github.com/expressjs/multer
 [`express-session`]: https://github.com/expressjs/session
 

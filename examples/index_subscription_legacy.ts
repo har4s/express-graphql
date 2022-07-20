@@ -17,7 +17,7 @@ app.use(
   graphqlHTTP({
     schema,
     rootValue,
-    graphiql: { subscriptionEndpoint },
+    playground: { subscriptionEndpoint },
   }),
 );
 

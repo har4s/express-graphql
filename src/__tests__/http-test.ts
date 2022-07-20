@@ -1655,8 +1655,8 @@ function runTests(server: Server) {
     });
   });
 
-  describe('Built-in GraphiQL support', () => {
-    it('does not renders GraphiQL if no opt-in', async () => {
+  describe('Built-in playground support', () => {
+    it('does not renders playground if no opt-in', async () => {
       const app = server();
 
       app.get(urlString(), graphqlHTTP({ schema: TestSchema }));
@@ -1671,14 +1671,14 @@ function runTests(server: Server) {
       expect(response.text).to.equal('{"data":{"test":"Hello World"}}');
     });
 
-    it('presents GraphiQL when accepting HTML', async () => {
+    it('presents playground when accepting HTML', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1690,40 +1690,40 @@ function runTests(server: Server) {
       expect(response.status).to.equal(200);
       expect(response.type).to.equal('text/html');
       expect(response.text).to.include('{test}');
-      expect(response.text).to.include('graphiql.min.js');
+      expect(response.text).to.include('playground.min.js');
     });
 
-    it('contains a default query within GraphiQL', async () => {
+    // it('contains a default query within playground', async () => {
+    //   const app = server();
+
+    //   app.get(
+    //     urlString(),
+    //     graphqlHTTP({
+    //       schema: TestSchema,
+    //       playground: { settings:{} },
+    //     }),
+    //   );
+
+    //   const response = await app
+    //     .request()
+    //     .get(urlString())
+    //     .set('Accept', 'text/html');
+
+    //   expect(response.status).to.equal(200);
+    //   expect(response.type).to.equal('text/html');
+    //   expect(response.text).to.include(
+    //     'defaultQuery: "query testDefaultQuery { hello }"',
+    //   );
+    // });
+
+    it('contains a pre-run response within playground', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: { defaultQuery: 'query testDefaultQuery { hello }' },
-        }),
-      );
-
-      const response = await app
-        .request()
-        .get(urlString())
-        .set('Accept', 'text/html');
-
-      expect(response.status).to.equal(200);
-      expect(response.type).to.equal('text/html');
-      expect(response.text).to.include(
-        'defaultQuery: "query testDefaultQuery { hello }"',
-      );
-    });
-
-    it('contains a pre-run response within GraphiQL', async () => {
-      const app = server();
-
-      app.get(
-        urlString(),
-        graphqlHTTP({
-          schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1742,14 +1742,14 @@ function runTests(server: Server) {
       );
     });
 
-    it('contains a pre-run operation name within GraphiQL', async () => {
+    it('contains a pre-run operation name within playground', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1774,14 +1774,14 @@ function runTests(server: Server) {
       expect(response.text).to.include('operationName: "B"');
     });
 
-    it('escapes HTML in queries within GraphiQL', async () => {
+    it('escapes HTML in queries within playground', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1797,14 +1797,14 @@ function runTests(server: Server) {
       );
     });
 
-    it('escapes HTML in variables within GraphiQL', async () => {
+    it('escapes HTML in variables within playground', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1827,14 +1827,14 @@ function runTests(server: Server) {
       );
     });
 
-    it('GraphiQL renders provided variables', async () => {
+    it('playground renders provided variables', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1856,14 +1856,14 @@ function runTests(server: Server) {
       );
     });
 
-    it('GraphiQL accepts an empty query', async () => {
+    it('playground accepts an empty query', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1877,14 +1877,14 @@ function runTests(server: Server) {
       expect(response.text).to.include('response: undefined');
     });
 
-    it('GraphiQL accepts a mutation query - does not execute it', async () => {
+    it('playground accepts a mutation query - does not execute it', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1912,7 +1912,7 @@ function runTests(server: Server) {
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1923,7 +1923,7 @@ function runTests(server: Server) {
 
       expect(response.status).to.equal(200);
       expect(response.type).to.equal('text/html');
-      expect(response.text).to.include('graphiql.min.js');
+      expect(response.text).to.include('playground.min.js');
     });
 
     it('returns JSON if preferred', async () => {
@@ -1933,7 +1933,7 @@ function runTests(server: Server) {
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1954,7 +1954,7 @@ function runTests(server: Server) {
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1975,7 +1975,7 @@ function runTests(server: Server) {
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: true,
+          playground: true,
         }),
       );
 
@@ -1989,14 +1989,14 @@ function runTests(server: Server) {
       expect(response.text).to.equal('{"data":{"test":"Hello World"}}');
     });
 
-    it('contains subscriptionEndpoint within GraphiQL', async () => {
+    it('contains subscriptionEndpoint within playground', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: { subscriptionEndpoint: 'ws://localhost' },
+          playground: { subscriptionEndpoint: 'ws://localhost' },
         }),
       );
 
@@ -2016,16 +2016,15 @@ function runTests(server: Server) {
       expect(response.text).to.include('ws:\\/\\/localhost');
     });
 
-    it('contains subscriptionEndpoint within GraphiQL with websocketClient option', async () => {
+    it('contains subscriptionEndpoint within playground with websocketClient option', async () => {
       const app = server();
 
       app.get(
         urlString(),
         graphqlHTTP({
           schema: TestSchema,
-          graphiql: {
+          playground: {
             subscriptionEndpoint: 'ws://localhost',
-            websocketClient: 'v1',
           },
         }),
       );

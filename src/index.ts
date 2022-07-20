@@ -25,9 +25,9 @@ import {
   specifiedRules,
 } from 'graphql';
 
-import type { GraphiQLOptions, GraphiQLData } from './renderGraphiQL';
+import type { PlaygroundOptions } from './renderPlayground';
 import { parseBody } from './parseBody';
-import { renderGraphiQL } from './renderGraphiQL';
+import { renderPlayground } from './renderPlayground';
 
 // `url` is always defined for IncomingMessage coming from http.Server
 type Request = IncomingMessage & { url: string };
@@ -127,10 +127,10 @@ export interface OptionsData {
   ) => MaybePromise<undefined | { [key: string]: unknown }>;
 
   /**
-   * A boolean to optionally enable GraphiQL mode.
+   * A boolean to optionally enable Playground mode.
    * Alternatively, instead of `true` you can pass in an options object.
    */
-  graphiql?: boolean | GraphiQLOptions;
+  playground?: boolean | PlaygroundOptions;
 
   /**
    * A resolver function to use when one is not provided by the schema.
@@ -192,8 +192,8 @@ export function graphqlHTTP(options: Options): Middleware {
   ): Promise<void> {
     // Higher scoped variables are referred to at various stages in the asynchronous state machine below.
     let params: GraphQLParams | undefined;
-    let showGraphiQL = false;
-    let graphiqlOptions: GraphiQLOptions | undefined;
+    let showPlayground = false;
+    let playgroundOptions: PlaygroundOptions = {};
     let formatErrorFn = formatError;
     let pretty = false;
     let result: ExecutionResult;
@@ -223,12 +223,16 @@ export function graphqlHTTP(options: Options): Middleware {
       const validationRules = optionsData.validationRules ?? [];
       const fieldResolver = optionsData.fieldResolver;
       const typeResolver = optionsData.typeResolver;
-      const graphiql = optionsData.graphiql ?? false;
       const extensionsFn = optionsData.extensions;
       const context = optionsData.context ?? request;
       const parseFn = optionsData.customParseFn ?? parse;
       const executeFn = optionsData.customExecuteFn ?? execute;
       const validateFn = optionsData.customValidateFn ?? validate;
+      const playground = optionsData.playground ?? false;
+
+      if (typeof playground !== 'boolean') {
+        playgroundOptions = playground;
+      }
 
       pretty = optionsData.pretty ?? false;
       formatErrorFn =
@@ -250,16 +254,14 @@ export function graphqlHTTP(options: Options): Middleware {
 
       // Get GraphQL params from the request and POST body data.
       const { query, variables, operationName } = params;
-      showGraphiQL = canDisplayGraphiQL(request, params) && graphiql !== false;
-      if (typeof graphiql !== 'boolean') {
-        graphiqlOptions = graphiql;
-      }
+      showPlayground =
+        canDisplayPlayground(request, params) && playground !== false;
 
-      // If there is no query, but GraphiQL will be displayed, do not produce
+      // If there is no query, but Playground will be displayed, do not produce
       // a result, otherwise return a 400: Bad Request.
       if (query == null) {
-        if (showGraphiQL) {
-          return respondWithGraphiQL(response, graphiqlOptions);
+        if (showPlayground) {
+          return respondWithPlayground(response, playgroundOptions);
         }
         throw httpError(400, 'Must provide query string.');
       }
@@ -302,11 +304,11 @@ export function graphqlHTTP(options: Options): Middleware {
         // Determine if this GET request will perform a non-query.
         const operationAST = getOperationAST(documentAST, operationName);
         if (operationAST && operationAST.operation !== 'query') {
-          // If GraphiQL can be shown, do not perform this query, but
-          // provide it to GraphiQL so that the requester may perform it
+          // If Playground can be shown, do not perform this query, but
+          // provide it to Playground so that the requester may perform it
           // themselves if desired.
-          if (showGraphiQL) {
-            return respondWithGraphiQL(response, graphiqlOptions, params);
+          if (showPlayground) {
+            return respondWithPlayground(response, playgroundOptions);
           }
 
           // Otherwise, report a 405: Method Not Allowed error.
@@ -399,14 +401,9 @@ export function graphqlHTTP(options: Options): Middleware {
       errors: result.errors?.map(formatErrorFn),
     };
 
-    // If allowed to show GraphiQL, present it instead of JSON.
-    if (showGraphiQL) {
-      return respondWithGraphiQL(
-        response,
-        graphiqlOptions,
-        params,
-        formattedResult,
-      );
+    // If allowed to show Playground, present it instead of JSON.
+    if (showPlayground) {
+      return respondWithPlayground(response, playgroundOptions);
     }
 
     // If "pretty" JSON isn't requested, and the server provides a
@@ -445,19 +442,11 @@ export function graphqlHTTP(options: Options): Middleware {
   };
 }
 
-function respondWithGraphiQL(
+function respondWithPlayground(
   response: Response,
-  options?: GraphiQLOptions,
-  params?: GraphQLParams,
-  result?: FormattedExecutionResult,
+  options: PlaygroundOptions,
 ): void {
-  const data: GraphiQLData = {
-    query: params?.query,
-    variables: params?.variables,
-    operationName: params?.operationName,
-    result,
-  };
-  const payload = renderGraphiQL(data, options);
+  const payload = renderPlayground(options);
   return sendResponse(response, 'text/html', payload);
 }
 
@@ -511,11 +500,14 @@ export async function getGraphQLParams(
 }
 
 /**
- * Helper function to determine if GraphiQL can be displayed.
+ * Helper function to determine if Playground can be displayed.
  */
-function canDisplayGraphiQL(request: Request, params: GraphQLParams): boolean {
-  // If `raw` false, GraphiQL mode is not enabled.
-  // Allowed to show GraphiQL if not requested as raw and this request prefers HTML over JSON.
+function canDisplayPlayground(
+  request: Request,
+  params: GraphQLParams,
+): boolean {
+  // If `raw` false, Playground mode is not enabled.
+  // Allowed to show Playground if not requested as raw and this request prefers HTML over JSON.
   return !params.raw && accepts(request).types(['json', 'html']) === 'html';
 }
 

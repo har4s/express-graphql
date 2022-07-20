@@ -21,7 +21,7 @@ app.use(
   graphqlHTTP({
     schema,
     rootValue,
-    graphiql: { headerEditorEnabled: true },
+    playground: { endpoint: 'http://localhost:4000/graphql' },
   }),
 );
 app.listen(4000);

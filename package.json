@@ -1,5 +1,5 @@
 {
-  "name": "express-graphql",
+  "name": "@har4s/express-graphql",
   "version": "0.12.0",
   "description": "Production ready GraphQL HTTP middleware.",
   "license": "MIT",
@@ -56,6 +56,7 @@
     "accepts": "^1.3.7",
     "content-type": "^1.0.4",
     "get-stream": "^6.0.0",
+    "graphql-playground-html": "^1.6.30",
     "http-errors": "1.8.0"
   },
   "devDependencies": {
